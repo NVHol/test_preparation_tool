@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тренажер подготовки к зачёту</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glass-background"></div>
+  
+  <div class="container">
+    <header class="glass-card header">
+      <h1>Подготовка к зачёту</h1>
+      <p id="ticket-info">Тренажер • Билет из 7 вопросов (для зачёта нужно от 4 верных)</p>
+    </header>
+
+    <main id="app-content">
+      <!-- Экран старта -->
+      <div id="start-screen" class="glass-card text-center">
+        <h2>Готовы начать тренировку?</h2>
+        <p class="subtitle">Система анонимная. В тренировочную базу для самоподготовки попадут только правильные ответы.</p>
+        <button id="start-btn" class="glass-button primary">Сформировать билет</button>
+      </div>
+
+      <!-- Экран прохождения билета -->
+      <div id="quiz-screen" class="glass-card hidden">
+        <div class="progress-bar">
+          <div id="progress" class="progress-fill"></div>
+        </div>
+        <div class="question-header">
+          <span id="question-number" class="badge">Вопрос 1 из 7</span>
+        </div>
+
+        <h3 id="question-text">Загрузка вопроса...</h3>
+
+        <textarea id="user-answer" class="glass-textarea" placeholder="Напишите ваш ответ своими словами..." rows="4"></textarea>
+        
+        <button id="check-btn" class="glass-button primary">Проверить ответ</button>
+
+        <!-- Блок проверки и эталона -->
+        <div id="evaluation-block" class="hidden">
+          <div class="reference-answer">
+            <h4>Эталонный ответ:</h4>
+            <p id="reference-text">Эталон загружается из базы...</p>
+            <a id="theory-link" href="#" target="_blank" class="theory-link hidden">📖 Повторить эту тему (открыть теорию)</a>
+          </div>
+          <p class="eval-title">Оцените полноту своего ответа:</p>
+          <div class="eval-buttons">
+            <button id="btn-correct" class="glass-button success">✓ Верно</button>
+            <button id="btn-incorrect" class="glass-button danger">✗ Неверно</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Экран завершения -->
+      <div id="finish-screen" class="glass-card text-center hidden">
+        <h2>Билет завершен!</h2>
+        <p id="final-score"></p>
+        <button onclick="location.reload()" class="glass-button primary">Пройти еще раз</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
