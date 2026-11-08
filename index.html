@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Тренажёр для подготовки к зачёту</title>
   
-  <!-- Подключаем красивый шрифт (например, Montserrat) -->
+  <!-- Подключаем красивый шрифт Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -23,14 +23,13 @@
     </header>
 
     <main id="app-content">
-      <!-- ЭКРАН 1: СТАРТ (Чистый интерфейс, текст по центру) -->
+      <!-- ЭКРАН 1: СТАРТ -->
       <div id="start-screen" class="glass-card text-center">
         <h2>Готовы начать тренировку?</h2>
-        <!-- Лишний текст убран -->
         <button id="start-btn" class="glass-button primary">Сформировать билет</button>
       </div>
 
-      <!-- ЭКРАН 2: ПРОХОЖДЕНИЕ (Появляется после нажатия кнопки) -->
+      <!-- ЭКРАН 2: ПРОХОЖДЕНИЕ -->
       <div id="quiz-screen" class="glass-card hidden">
         <div class="progress-bar">
           <div id="progress" class="progress-fill"></div>
@@ -41,29 +40,39 @@
 
         <h3 id="question-text">Загрузка вопроса...</h3>
 
-        <!-- Место, куда студент вводит ответ -->
+        <!-- Поле ввода ответа -->
         <textarea id="user-answer" class="glass-textarea" placeholder="Напишите ваш ответ своими словами..." rows="5"></textarea>
         
         <!-- Кнопка "Проверить" -->
         <button id="check-btn" class="glass-button primary">Проверить ответ</button>
 
-        <!-- Блок проверки (скрыт до нажатия "Проверить") -->
-        <div id="evaluation-block" class="hidden">
-          <div class="reference-answer">
+        <!-- Блок проверки и эталона -->
+        <div id="evaluation-block">
+          <div id="reference-container" class="reference-answer hidden">
             <h4>Эталонный ответ:</h4>
             <p id="reference-text">Эталон загружается из базы...</p>
-            <a id="theory-link" href="#" target="_blank" class="theory-link hidden">📖 Повторить эту тему (открыть теорию)</a>
           </div>
-          <p class="eval-title">Оцените полноту своего ответа:</p>
-          <div class="eval-buttons">
-            <!-- Кнопки Верно/Неверно -->
-            <button id="btn-correct" class="glass-button success">✓ Верно</button>
-            <button id="btn-incorrect" class="glass-button danger">✗ Неверно</button>
+          
+          <div id="evaluation-buttons-wrap">
+            <p class="eval-title">Оцените полноту своего ответа:</p>
+            <div class="eval-buttons">
+              <button id="btn-correct" class="glass-button success">✓ Верно</button>
+              <button id="btn-incorrect" class="glass-button danger">✗ Неверно</button>
+            </div>
+          </div>
+
+          <!-- Спец-блок для неверного ответа с кнопкой «Повтори этот материал» -->
+          <div id="wrong-feedback-block" class="hidden text-center" style="margin-top: 20px;">
+            <p style="color: #dc2626; font-weight: 600; margin-bottom: 12px;">Ничего страшного, для этого и существует тренажёр!</p>
+            <a id="wrong-theory-link" href="#" target="_blank" class="glass-button primary" style="display: inline-block; text-decoration: none; margin-bottom: 15px;">📖 Повтори этот материал</a>
+            <div>
+              <button id="next-after-wrong-btn" class="glass-button" style="background: rgba(0,0,0,0.1); color: #1e293b;">Следующий вопрос →</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ЭКРАН 3: ФИНАЛ (Результат) -->
+      <!-- ЭКРАН 3: ФИНАЛ -->
       <div id="finish-screen" class="glass-card text-center hidden">
         <h2>Билет завершен!</h2>
         <p id="final-score"></p>
