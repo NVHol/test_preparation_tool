@@ -5,22 +5,11 @@ const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUZS378rRhdo
 const TOTAL_QUESTIONS = 7;
 const PASSING_SCORE = 4;
 
-// --- РЕЗЕРВНЫЕ ВОПРОСЫ (Гарантируют запуск, если .txt файлы недоступны) ---
-const backupQuestions = {
-  1: 'Что изучает теплотехника? | Теплотехника изучает методы получения, преобразования, передачи и использования теплоты. | #',
-  2: 'Сформулируйте первое начало термодинамики своими словами. | Изменение внутренней энергии системы равно сумме количества теплоты, переданного системе, и работы, совершенной над системой. | #',
-  3: 'Каковы основные способы теплообмена? | Основные способы: теплопроводность, конвекция и тепловое излучение. | #',
-  4: 'Что такое идеальный газ в термодинамике? | Это модель газа, в которой пренебрегают взаимодействием между молекулами и их собственным объемом. | #',
-  5: 'Опишите цикл Карно. Из каких процессов он состоит? | Цикл Карно состоит из двух изотермических и двух адиабатных процессов. | #',
-  6: 'В чем разница между теплопроводностью и конвекцией? | Теплопроводность — передача тепла внутри тела или при контакте; конвекция — передача тепла перемещением объемов жидкости или газа. | #',
-  7: 'Сформулируйте закон Бойля-Мариотта. | При постоянной температуре произведение давления газа на его объем есть величина постоянная (pV=const). | #'
-};
-
 let currentTicket = [];
 let currentQuestionIndex = 0;
 let score = 0;
 
-// --- ЗАГРУЗКА БИЛЕТА ---
+// --- ЗАГРУЗКА БИЛЕТА (из папки questions/ или напрямую из корня) ---
 async function generateTicket() {
   currentTicket = [];
   
@@ -28,6 +17,7 @@ async function generateTicket() {
     let questionData = null;
     
     try {
+      // Ищем файлы в папке questions/ (или просто i.txt, если файлы лежат в корне)
       const response = await fetch(`questions/${i}.txt`);
       if (response.ok) {
         const text = await response.text();
@@ -47,16 +37,16 @@ async function generateTicket() {
         }
       }
     } catch (e) {
-      console.warn(`Файл questions/${i}.txt недоступен или пуст. Используем резервный вопрос.`);
+      console.warn(`Не удалось загрузить вопросы из файла ${i}`);
     }
 
+    // Резервный вариант на всякий случай
     if (!questionData) {
-      const parts = backupQuestions[i].split('|').map(p => p.trim());
       questionData = {
         num: i,
-        text: parts[0],
-        reference: parts[1],
-        link: parts[2]
+        text: `Вопрос №${i}`,
+        reference: 'Эталонный ответ',
+        link: '#'
       };
     }
     
@@ -89,17 +79,18 @@ function showQuestion(index) {
   document.getElementById('user-answer').value = '';
   document.getElementById('progress').style.width = `${((index + 1) / TOTAL_QUESTIONS) * 100}%`;
 
-  // Возвращаем стандартный блок оценок (скрываем блок "Повтори материал" для нового вопроса)
-  document.getElementById('evaluation-block').classList.remove('hidden');
-  document.getElementById('wrong-feedback-block').classList.add('hidden');
-  
-  document.getElementById('evaluation-buttons-wrap').classList.remove('hidden');
-  document.getElementById('reference-container').classList.add('hidden');
-  
+  // Сбрасываем видимость блоков для нового вопроса:
+  // Показываем поле ввода и кнопку "Проверить ответ"
+  document.getElementById('user-answer').disabled = false;
   document.getElementById('check-btn').classList.remove('hidden');
+
+  // Полностью скрываем блок с эталоном и кнопками оценки
+  document.getElementById('reference-container').classList.add('hidden');
+  document.getElementById('evaluation-buttons-wrap').classList.add('hidden');
+  document.getElementById('wrong-feedback-block').classList.add('hidden');
 }
 
-// Кнопка "Проверить ответ"
+// Кнопка "Проверить ответ" — ПОСЛЕ НЕЕ ПОЯВЛЯЕТСЯ ЭТАЛОН И ВЕРНО/НЕВЕРНО
 document.getElementById('check-btn').addEventListener('click', () => {
   const answer = document.getElementById('user-answer').value.trim();
   if (!answer) {
@@ -109,21 +100,26 @@ document.getElementById('check-btn').addEventListener('click', () => {
 
   const q = currentTicket[currentQuestionIndex];
   
-  // Показываем эталон и кнопки Верно/Неверно
+  // Заполняем и показываем эталон
   document.getElementById('reference-text').innerText = q.reference;
   document.getElementById('reference-container').classList.remove('hidden');
+  
+  // Показываем кнопки Верно / Неверно
+  document.getElementById('evaluation-buttons-wrap').classList.remove('hidden');
 
+  // Блокируем поле ввода и скрываем кнопку "Проверить", чтобы студент сначала оценил себя
+  document.getElementById('user-answer').disabled = true;
   document.getElementById('check-btn').classList.add('hidden');
 });
 
 // --- ОЦЕНКА ---
 
+// Нажали "Верно": +1 балл, отправка в табличку, переход дальше
 document.getElementById('btn-correct').addEventListener('click', () => {
-  score++; // +1 балл
+  score++; 
   const q = currentTicket[currentQuestionIndex];
   const userAnswer = document.getElementById('user-answer').value;
 
-  // Отправляем в Google Таблицу
   const data = {
     questionNum: q.num,
     questionText: q.text,
@@ -140,14 +136,12 @@ document.getElementById('btn-correct').addEventListener('click', () => {
   proceedNext();
 });
 
-// Если студент нажал "Неверно"
+// Нажали "Неверно": балл не идет, появляется кнопка "Повтори этот материал"
 document.getElementById('btn-incorrect').addEventListener('click', () => {
-  // Балл не начисляем, в таблицу ничего не пишем
   const q = currentTicket[currentQuestionIndex];
 
-  // Скрываем кнопки Верно/Неверно и эталон, показываем специальный блок с текстом "Повтори этот материал"
+  // Скрываем кнопки Верно/Неверно, оставляя эталон, и показываем блок повторения
   document.getElementById('evaluation-buttons-wrap').classList.add('hidden');
-  document.getElementById('reference-container').classList.add('hidden');
   
   const theoryLink = document.getElementById('wrong-theory-link');
   if (q.link && q.link !== '#') {
@@ -160,7 +154,7 @@ document.getElementById('btn-incorrect').addEventListener('click', () => {
   document.getElementById('wrong-feedback-block').classList.remove('hidden');
 });
 
-// Кнопка "Далее" после просмотра материала по ошибке
+// Кнопка "Следующий вопрос" после ознакомления с материалом
 document.getElementById('next-after-wrong-btn').addEventListener('click', () => {
   proceedNext();
 });
