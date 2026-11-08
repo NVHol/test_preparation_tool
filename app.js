@@ -4,40 +4,49 @@ let currentTicket = [];
 let currentQuestionIndex = 0;
 let correctCount = 0;
 
-// Загрузка вопросов из 7 файлов (questions/1.txt ... 7.txt)
+// Безопасная загрузка вопросов из 7 файлов (questions/1.txt ... 7.txt)
 async function generateTicket() {
   currentTicket = [];
   for (let i = 1; i <= 7; i++) {
     try {
       const response = await fetch(`questions/${i}.txt`);
+      if (!response.ok) throw new Error('Файл не найден');
+      
       const text = await response.text();
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       
-      const randomIndex = Math.floor(Math.random() * lines.length);
-      const rawLine = lines[randomIndex];
-
-      const parts = rawLine.split('|').map(p => p.trim());
-      
-      currentTicket.push({
-        num: i,
-        text: parts[0] || `Вопрос №${i}`,
-        reference: parts[1] || 'Эталонный ответ не указан преподавателем.',
-        link: parts[2] || '#'
-      });
+      if (lines.length > 0) {
+        const randomIndex = Math.floor(Math.random() * lines.length);
+        const rawLine = lines[randomIndex];
+        const parts = rawLine.split('|').map(p => p.trim());
+        
+        currentTicket.push({
+          num: i,
+          text: parts[0] || `Вопрос №${i}`,
+          reference: parts[1] || 'Эталонный ответ не указан преподавателем.',
+          link: parts[2] || '#'
+        });
+        continue;
+      }
     } catch (e) {
-      console.error(`Ошибка загрузки questions/${i}.txt`, e);
-      currentTicket.push({ 
-        num: i, 
-        text: `Вопрос №${i} (Файл не найден)`, 
-        reference: 'Нет данных', 
-        link: '#' 
-      });
+      console.warn(`Не удалось загрузить questions/${i}.txt, используется резервный вопрос.`, e);
     }
+    
+    // Резервный вариант, если файл не загрузился или пустой, чтобы кнопка никогда не зависала
+    currentTicket.push({
+      num: i,
+      text: `Тестовый вопрос №${i} (проверьте наличие файла questions/${i}.txt в репозитории)`,
+      reference: 'Эталонный ответ для проверки.',
+      link: '#'
+    });
   }
 }
 
 document.getElementById('start-btn').addEventListener('click', async () => {
-  document.getElementById('start-btn').innerText = 'Формируем билет...';
+  const btn = document.getElementById('start-btn');
+  btn.innerText = 'Формируем билет...';
+  btn.disabled = true;
+
   await generateTicket();
 
   document.getElementById('start-screen').classList.add('hidden');
@@ -50,11 +59,9 @@ function showQuestion(index) {
   currentQuestionIndex = index;
   const q = currentTicket[index];
   
-  // Обновлено под 7 вопросов
   document.getElementById('question-number').innerText = `Вопрос ${index + 1} из 7`;
   document.getElementById('question-text').innerText = q.text;
   document.getElementById('user-answer').value = '';
-  // Расчет ширины прогресс-бара для 7 шагов (100 / 7 ≈ 14.28%)
   document.getElementById('progress').style.width = `${((index + 1) / 7) * 100}%`;
 
   document.getElementById('reference-text').innerText = q.reference;
@@ -69,7 +76,7 @@ function showQuestion(index) {
 
   document.getElementById('evaluation-block').classList.add('hidden');
   document.getElementById('check-btn').classList.remove('hidden');
-});
+}
 
 document.getElementById('check-btn').addEventListener('click', () => {
   const answer = document.getElementById('user-answer').value.trim();
@@ -92,7 +99,6 @@ async function submitGrade(grade) {
   if (grade === 'Верно') {
     correctCount++;
 
-    // Отправка правильного ответа в Google Таблицу (анонимно)
     const data = {
       questionNum: q.num,
       questionText: q.text,
@@ -118,7 +124,6 @@ async function submitGrade(grade) {
 }
 
 function proceedNext() {
-  // Проверяем до 7 вопроса (индексы от 0 до 6)
   if (currentQuestionIndex < 6) {
     showQuestion(currentQuestionIndex + 1);
   } else {
@@ -132,7 +137,6 @@ function showFinishScreen() {
   
   const finalScoreEl = document.getElementById('final-score');
   
-  // Проверка порога сдачи (нужно минимум 4 из 7)
   if (correctCount >= 4) {
     finalScoreEl.innerHTML = `🎉 <b>Зачёт сдан!</b><br>Вы правильно ответили на ${correctCount} из 7 вопросов (порог: 4). Отличный результат! Все правильные ответы сохранены в тренировочную базу.`;
   } else {
