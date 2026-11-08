@@ -1,4 +1,4 @@
-const GOOGLE_SCRIPT_URL = https://script.google.com/macros/s/AKfycbyUZS378rRhdon6w7c4NepfreZ2TcxfXPE9EqEMUZ_a_J4AP06bcDmQZvXkT6bfM-84Vw/exec;
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUZS378rRhdon6w7c4NepfreZ2TcxfXPE9EqEMUZ_a_J4AP06bcDmQZvXkT6bfM-84Vw/exec';
 
 // --- НАСТРОЙКИ ---
 const TOTAL_QUESTIONS = 7;
