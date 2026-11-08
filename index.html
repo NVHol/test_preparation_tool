@@ -4,9 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Тренажёр для подготовки к зачёту</title>
+  
+  <!-- Подключаем красивый шрифт (например, Montserrat) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Фон с эффектом матового стекла -->
   <div class="glass-background"></div>
   
   <div class="container">
@@ -16,14 +23,14 @@
     </header>
 
     <main id="app-content">
-      <!-- Экран старта -->
+      <!-- ЭКРАН 1: СТАРТ (Чистый интерфейс, текст по центру) -->
       <div id="start-screen" class="glass-card text-center">
         <h2>Готовы начать тренировку?</h2>
-        <p class="subtitle">Система анонимная. В тренировочную базу для самоподготовки попадут только правильные ответы.</p>
+        <!-- Лишний текст убран -->
         <button id="start-btn" class="glass-button primary">Сформировать билет</button>
       </div>
 
-      <!-- Экран прохождения билета -->
+      <!-- ЭКРАН 2: ПРОХОЖДЕНИЕ (Появляется после нажатия кнопки) -->
       <div id="quiz-screen" class="glass-card hidden">
         <div class="progress-bar">
           <div id="progress" class="progress-fill"></div>
@@ -34,11 +41,13 @@
 
         <h3 id="question-text">Загрузка вопроса...</h3>
 
-        <textarea id="user-answer" class="glass-textarea" placeholder="Напишите ваш ответ своими словами..." rows="4"></textarea>
+        <!-- Место, куда студент вводит ответ -->
+        <textarea id="user-answer" class="glass-textarea" placeholder="Напишите ваш ответ своими словами..." rows="5"></textarea>
         
+        <!-- Кнопка "Проверить" -->
         <button id="check-btn" class="glass-button primary">Проверить ответ</button>
 
-        <!-- Блок проверки и эталона -->
+        <!-- Блок проверки (скрыт до нажатия "Проверить") -->
         <div id="evaluation-block" class="hidden">
           <div class="reference-answer">
             <h4>Эталонный ответ:</h4>
@@ -47,13 +56,14 @@
           </div>
           <p class="eval-title">Оцените полноту своего ответа:</p>
           <div class="eval-buttons">
+            <!-- Кнопки Верно/Неверно -->
             <button id="btn-correct" class="glass-button success">✓ Верно</button>
             <button id="btn-incorrect" class="glass-button danger">✗ Неверно</button>
           </div>
         </div>
       </div>
 
-      <!-- Экран завершения -->
+      <!-- ЭКРАН 3: ФИНАЛ (Результат) -->
       <div id="finish-screen" class="glass-card text-center hidden">
         <h2>Билет завершен!</h2>
         <p id="final-score"></p>
